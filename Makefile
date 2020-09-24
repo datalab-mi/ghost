@@ -1,6 +1,10 @@
-export SQL_PASSWORD=example
+export CURRENT_PATH := $(shell pwd)
+export CUSTOM_THEME_PATH=${CURRENT_PATH}/Casper
+
 export PORT=8080
+export SQL_PASSWORD=example
 export URL=http://localhost:8080
+
 export SMTP_MAIL_USER=user@example.com
 export SMTP_MAIL_PASS=1234
 export SMTP_MAIL_HOST=smtp.mail.com
