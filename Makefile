@@ -22,9 +22,17 @@ dev: ${CUSTOM_THEME_PATH}
 
 up: ${CUSTOM_THEME_PATH}
 	docker-compose up -d
+# up-db or up-ghost
+up-%: ${CUSTOM_THEME_PATH}
+	docker-compose up -d $*
 
 down:
 	docker-compose down
+
+stop:
+	docker-compose stop
+stop-%:
+	docker-compose stop $*
 
 logs:
 	docker-compose logs  -f ghost
