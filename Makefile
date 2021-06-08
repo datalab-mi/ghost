@@ -5,6 +5,7 @@ export PORT=8080
 export SQL_PASSWORD=example
 export URL=http://localhost:8080
 
+export SMTP_MAIL_FROM='web <web@mydomain.com>'
 export SMTP_MAIL_USER=user@example.com
 export SMTP_MAIL_PASS=1234
 export SMTP_MAIL_HOST=smtp.mail.com
@@ -21,9 +22,17 @@ dev: ${CUSTOM_THEME_PATH}
 
 up: ${CUSTOM_THEME_PATH}
 	docker-compose up -d
+# up-db or up-ghost
+up-%: ${CUSTOM_THEME_PATH}
+	docker-compose up -d $*
 
 down:
 	docker-compose down
+
+stop:
+	docker-compose stop
+stop-%:
+	docker-compose stop $*
 
 logs:
 	docker-compose logs  -f ghost
