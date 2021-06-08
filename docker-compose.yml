@@ -18,9 +18,9 @@ services:
       database__connection__password: ${SQL_PASSWORD}
       database__connection__database: ghost
       mail__transport: SMTP
-      mail__from: 'Datalab <datalab@interieur.gouv.fr>'
+      mail__from: ${SMTP_MAIL_FROM}
       mail__options__service: SMTP
-      mail__options__host: ${SMTP_MAIL_HOST} 
+      mail__options__host: ${SMTP_MAIL_HOST}
       mail__options__port: ${SMTP_MAIL_PORT}
       mail__options__secureConnection: 'false'
       mail__options__auth__user: ${SMTP_MAIL_USER}
