@@ -11,11 +11,20 @@ export SMTP_MAIL_PASS=1234
 export SMTP_MAIL_HOST=smtp.mail.com
 export SMTP_MAIL_PORT=25
 
+# if defined, use curl instead of git
+export USE_CURL :=
+
 dummy		    := $(shell touch artifacts)
 include ./artifacts
 
 ${CUSTOM_THEME_PATH}:
-	git clone https://github.com/datalab-mi/Casper.git custom-theme
+	if [ -n "${USE_CURL}" ]; then \
+          mkdir ${CUSTOM_THEME_PATH} && \
+          curl -kL -s https://github.com/datalab-mi/Casper/archive/refs/heads/master.tar.gz | \
+            tar -zxvf - -C ${CUSTOM_THEME_PATH} --strip 1 ; \
+        else \
+          git clone https://github.com/datalab-mi/Casper.git custom-theme ; \
+        fi
 
 dev: ${CUSTOM_THEME_PATH}
 	docker-compose up
