@@ -23,10 +23,11 @@ if [ -n "$APP_ROLE" ] ;then
 fi
 
 # download install repo
+mkdir -p ${APP_NAME}
 curl -kL -s $curl_args ${APP_URL} | \
-   tar -zxvf - -C .
+   tar -zxvf - --strip-components=1 -C ${APP_NAME}
 # install app (role)
-( cd ${APP_NAME}-${APP_BRANCH}/
+( cd ${APP_NAME}
   [ -n "$DOCKERHUB_TOKEN" -a -n "$DOCKERHUB_LOGIN" ] &&  echo $DOCKERHUB_TOKEN | \
       docker login --username $DOCKERHUB_LOGIN --password-stdin
   make up$app_role
