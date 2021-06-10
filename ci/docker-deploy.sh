@@ -10,6 +10,8 @@ export APP_NAME="${APP_NAME:-ghost}"
 export APP_BRANCH="${APP_BRANCH:-master}"
 export APP_URL="https://github.com/datalab-mi/${APP_NAME}/archive/refs/heads/${APP_BRANCH}.tar.gz"
 
+export USE_CURL=true
+
 # if authenticated repo
 if [ -n "${GITHUB_TOKEN}" ] ; then
   curl_args=" -H \"Authorization: token ${GITHUB_TOKEN}\" "
