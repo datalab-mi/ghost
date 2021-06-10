@@ -1,15 +1,15 @@
 export CURRENT_PATH := $(shell pwd)
 export CUSTOM_THEME_PATH=${CURRENT_PATH}/custom-theme
 
-export PORT=8080
-export SQL_PASSWORD=example
-export URL=http://localhost:8080
+export PORT ?= 8080
+export SQL_PASSWORD ?= example
+export URL ?= http://localhost:8080
 
-export SMTP_MAIL_FROM='web <web@mydomain.com>'
-export SMTP_MAIL_USER=user@example.com
-export SMTP_MAIL_PASS=1234
-export SMTP_MAIL_HOST=smtp.mail.com
-export SMTP_MAIL_PORT=25
+export SMTP_MAIL_FROM ?= 'web <web@mydomain.com>'
+export SMTP_MAIL_USER ?= user@example.com
+export SMTP_MAIL_PASS ?= 1234
+export SMTP_MAIL_HOST ?= smtp.mail.com
+export SMTP_MAIL_PORT ?= 25
 
 # if defined, use curl instead of git
 export USE_CURL :=
