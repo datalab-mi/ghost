@@ -30,6 +30,9 @@ curl -kL -s $curl_args ${APP_URL} | \
 ( cd ${APP_NAME}
   [ -n "$DOCKERHUB_TOKEN" -a -n "$DOCKERHUB_LOGIN" ] &&  echo $DOCKERHUB_TOKEN | \
       docker login --username $DOCKERHUB_LOGIN --password-stdin
+
   make up$app_role
+
+  [ -n "$DOCKERHUB_TOKEN" -a -n "$DOCKERHUB_LOGIN" ] && docker logout 
 )
 
