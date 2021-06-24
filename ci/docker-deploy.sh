@@ -3,6 +3,7 @@
 # quick docker deploy
 #
 # optional dockerhub login
+set -e -o pipefail
 export DOCKERHUB_LOGIN="${DOCKERHUB_LOGIN:-}"
 export DOCKERHUB_TOKEN="${DOCKERHUB_TOKEN:-}"
 
@@ -24,15 +25,14 @@ fi
 
 # download install repo
 mkdir -p ${APP_NAME}
-curl -kL -s $curl_args ${APP_URL} | \
+eval curl -kL -s $curl_args ${APP_URL} | \
    tar -zxvf - --strip-components=1 -C ${APP_NAME}
 # install app (role)
 ( cd ${APP_NAME}
-  [ -n "$DOCKERHUB_TOKEN" -a -n "$DOCKERHUB_LOGIN" ] &&  echo $DOCKERHUB_TOKEN | \
-      docker login --username $DOCKERHUB_LOGIN --password-stdin
+  if [ -n "$DOCKERHUB_TOKEN" -a -n "$DOCKERHUB_LOGIN" ] ;then  echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_LOGIN --password-stdin ; fi
 
   make up$app_role
 
-  [ -n "$DOCKERHUB_TOKEN" -a -n "$DOCKERHUB_LOGIN" ] && docker logout 
+  if [ -n "$DOCKERHUB_TOKEN" -a -n "$DOCKERHUB_LOGIN" ] ; then docker logout ; fi
 )
-
+exit $?
