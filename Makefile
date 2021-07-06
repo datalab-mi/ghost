@@ -50,3 +50,23 @@ logs:
 
 clean:
 	@sudo rm -rf data data_sql
+
+backup-images:
+	tar -zcvf images.tar.gz data/images/
+	rclone copy images.tar.gz swift:app-images
+	rm -rf images.tar.gz
+
+backup-settings:
+	tar -zcvf settings.tar.gz data/settings/
+	rclone copy settings.tar.gz swift:app-images
+	rm -rf settings.tar.gz
+	
+backup-data:
+	tar -zcvf data.tar.gz data/data/
+	rclone copy data.tar.gz swift:app-images
+	rm -rf data.tar.gz
+
+backup: backup-images backup-settings backup-data
+
+restore-images:
+	rclone copy -q --progress swift:app-images/images.tar.gz images.tar.gz
