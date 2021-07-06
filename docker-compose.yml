@@ -12,6 +12,8 @@ services:
     ports:
       - ${PORT}:2368
     environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
       database__client: mysql
       database__connection__host: db
       database__connection__user: root
