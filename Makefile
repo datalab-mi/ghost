@@ -65,17 +65,38 @@ ${DATA_DIR}:
 ${DATA_DB_DIR}:
 	mkdir -p ${DATA_DB_DIR}
 
-backup-settings:
-	tar -zcvf settings.tar.gz data/settings/
-	rclone copy settings.tar.gz swift:app-images
-	rm -rf settings.tar.gz
-	
-backup-data:
-	tar -zcvf data.tar.gz data/data/
-	rclone copy data.tar.gz swift:app-images
-	rm -rf data.tar.gz
+backup-%:
+	@tar -zcvf $*.tar.gz data/$*/
+	@rclone -q --progress copy $*.tar.gz swift:app-images
+	@rm -rf $*.tar.gz
+
+#	@docker-compose run --rm --name db db /usr/bin/mysql -h localhost -u root -p ${SQL_PASSWORD} ghost > ghost.sql
+#	@rclone -q --progress copy ghost.sql swift:app-images
+#docker exec ghost-mysql /usr/bin/mysqldump -u root --password=${SQL_PASSWORD} ghost > backup.sql
+
+backup-mysql: 
+	@echo taring ${DATA_DB_DIR} to data-sql.tar
+	cd $$(dirname ${DATA_DB_DIR}) && sudo tar --create --file=${CURRENT_PATH}/data-sql.tar --listed-incremental=${CURRENT_PATH}/data-sql.snar ${DATA_DB_DIR}
 
 backup: backup-images backup-settings backup-data
 
-restore-images:
-	rclone copy -q --progress swift:app-images/images.tar.gz images.tar.gz
+restore-%:
+	@rclone copy -q --progress swift:app-images/$*.tar.gz ${DATA_DIR}
+	@tar xzvf ${DATA_DIR}/$*.tar.gz  
+	@rm -rf ${DATA_DIR}/$*.tar.gz
+
+#@docker-compose run --rm --name db db /usr/bin/mysql -h localhost -u root --password=${SQL_PASSWORD} ghost < ghost.sql
+#@docker-compose exec -T db /usr/bin/mysql -h localhost -u root --password=${SQL_PASSWORD} < ghost.sql
+
+restore-mysql: down
+	@if [ -d "$(DATA_DB_DIR)" ] ; then (echo purging ${DATA_DB_DIR} && sudo rm -rf ${DATA_DB_DIR} && echo purge done) ; fi
+	@\
+	if [ ! -f "data-sql.tar" ];then\
+		(echo no such archive "data-sql.tar" && exit 1);\
+	else\
+		echo restoring from data-sql.tar to ${DATA_DB_DIR} && \
+		sudo tar xf data-sql.tar -C $$(dirname ${DATA_DB_DIR}) && \
+		echo backup restored;\
+	fi;
+
+restore: ${DATA_DIR} restore-images restore-mysql
