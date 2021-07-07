@@ -13,6 +13,9 @@ export SMTP_MAIL_PASS ?= 1234
 export SMTP_MAIL_HOST ?= smtp.mail.com
 export SMTP_MAIL_PORT ?= 25
 
+export DATA_DIR ?= data
+export DATA_DB_DIR ?= data_sql
+
 # if defined, use curl instead of git
 export USE_CURL :=
 
@@ -48,13 +51,19 @@ stop-%:
 logs:
 	docker-compose logs  -f ghost
 
-clean:
-	@sudo rm -rf data data_sql
+clean-data:
+	@sudo rm -rf ${DATA_DIR}
 
-backup-images:
-	tar -zcvf images.tar.gz data/images/
-	rclone copy images.tar.gz swift:app-images
-	rm -rf images.tar.gz
+clean-data-sql:
+	@sudo rm -rf ${DATA_DB_DIR}
+
+clean: clean-data clean-data-sql
+
+${DATA_DIR}:
+	mkdir -p ${DATA_DIR}
+
+${DATA_DB_DIR}:
+	mkdir -p ${DATA_DB_DIR}
 
 backup-settings:
 	tar -zcvf settings.tar.gz data/settings/
