@@ -1,3 +1,5 @@
+SHELL = /bin/bash
+
 export CURRENT_PATH := $(shell pwd)
 export CUSTOM_THEME_PATH=${CURRENT_PATH}/custom-theme
 
@@ -13,8 +15,16 @@ export SMTP_MAIL_PASS ?= 1234
 export SMTP_MAIL_HOST ?= smtp.mail.com
 export SMTP_MAIL_PORT ?= 25
 
+export DATA_DIR ?= data
+export DATA_DB_DIR ?= data_sql
+
 # if defined, use curl instead of git
 export USE_CURL :=
+
+# rclone backup
+export RCLONE_PATH := $(shell which rclone)
+# rclone swift backend storage
+export RCLONE_BACKEND_STORE = ":swift,env_auth:"/app-images
 
 dummy		    := $(shell touch artifacts)
 include ./artifacts
@@ -48,5 +58,66 @@ stop-%:
 logs:
 	docker-compose logs  -f ghost
 
-clean:
-	@sudo rm -rf data data_sql
+clean-data:
+	@sudo rm -rf ${DATA_DIR}
+
+clean-data-sql:
+	@sudo rm -rf ${DATA_DB_DIR}
+
+clean: clean-data clean-data-sql
+
+${DATA_DIR}:
+	mkdir -p ${DATA_DIR}
+
+${DATA_DB_DIR}:
+	mkdir -p ${DATA_DB_DIR}
+
+install-rclone:
+	@echo "# install rclone"
+	@if [ -x "${RCLONE_PATH}" ]; then echo "${RCLONE_PATH} exists" ; \
+         else curl -kL -s https://rclone.org/install.sh | sudo -E bash ; \
+         fi
+
+check-rclone:
+	@if ! which ${RCLONE_PATH} > /dev/null ; then echo "# rclone not found. Use 'make install-rclone'" ; false ; fi
+
+
+backup-%: check-rclone
+	@echo "# $@"
+	@tar -zcvf $*.tar.gz data/$*/
+	@${RCLONE_PATH} -q --progress copy $*.tar.gz ${RCLONE_BACKEND_STORE}
+	@rm -rf $*.tar.gz
+
+
+backup-mysql: check-rclone down backup-mysql-main up
+.PHONY: backup-mysql
+
+backup-mysql-main:
+	@echo "# taring ${DATA_DB_DIR} to data-sql.tar"
+	cd $$(dirname ${DATA_DB_DIR}) && sudo tar --create --file=${CURRENT_PATH}/data-sql.tar --listed-incremental=${CURRENT_PATH}/data-sql.snar ${DATA_DB_DIR}
+	@${RCLONE_PATH} -q --progress copy data-sql.tar ${RCLONE_BACKEND_STORE}
+	@rm -rf data-sql.tar
+
+backup: backup-images backup-settings backup-data backup-mysql
+
+restore-%: check-rclone
+	@echo "# $@"
+	@${RCLONE_PATH} copy -q --progress ${RCLONE_BACKEND_STORE}/$*.tar.gz .
+	@sudo tar xzvf $*.tar.gz
+	@rm -rf $*.tar.gz
+
+restore-mysql: check-rclone down
+	@echo "# $@"
+	@${RCLONE_PATH} copy -q --progress ${RCLONE_BACKEND_STORE}/data-sql.tar .
+	@if [ -d "$(DATA_DB_DIR)" ] ; then (echo purging ${DATA_DB_DIR} && sudo rm -rf ${DATA_DB_DIR} && echo purge done) ; fi
+	@\
+	if [ ! -f "data-sql.tar" ];then\
+		(echo no such archive "data-sql.tar" && exit 1);\
+	else\
+		echo restoring from data-sql.tar to ${DATA_DB_DIR} && \
+		sudo tar xf data-sql.tar -C $$(dirname ${DATA_DB_DIR}) && \
+		echo backup restored;\
+	        rm -rf data-sql.tar;\
+	fi
+
+restore: ${DATA_DIR} restore-images restore-settings restore-data restore-mysql
