@@ -1,3 +1,5 @@
+SHELL = /bin/bash
+
 export CURRENT_PATH := $(shell pwd)
 export CUSTOM_THEME_PATH=${CURRENT_PATH}/custom-theme
 
@@ -18,6 +20,9 @@ export DATA_DB_DIR ?= data_sql
 
 # if defined, use curl instead of git
 export USE_CURL :=
+
+# rclone backup
+export RCLONE_PATH := $(shell which rclone)
 
 dummy		    := $(shell touch artifacts)
 include ./artifacts
@@ -65,26 +70,35 @@ ${DATA_DIR}:
 ${DATA_DB_DIR}:
 	mkdir -p ${DATA_DB_DIR}
 
-backup-%:
+install-rclone:
+	@echo "# install rclone"
+	@if [ -x "${RCLONE_PATH}" ]; then echo "${RCLONE_PATH} exists" ; \
+         else curl -kL -s https://rclone.org/install.sh | sudo -E bash ; \
+         fi
+
+check-rclone:
+	@if ! which ${RCLONE_PATH} > /dev/null ; then echo "# rclone not found. Use 'make install-rclone'" ; false ; fi
+
+backup-%: check-rclone
 	@tar -zcvf $*.tar.gz data/$*/
-	@rclone -q --progress copy $*.tar.gz swift:app-images
+	@${RCLONE_PATH} -q --progress copy $*.tar.gz swift:app-images
 	@rm -rf $*.tar.gz
 
-backup-mysql: down
+backup-mysql: check-rclone down
 	@echo taring ${DATA_DB_DIR} to data-sql.tar
 	cd $$(dirname ${DATA_DB_DIR}) && sudo tar --create --file=${CURRENT_PATH}/data-sql.tar --listed-incremental=${CURRENT_PATH}/data-sql.snar ${DATA_DB_DIR}
-	@rclone -q --progress copy data-sql.tar swift:app-images
+	@${RCLONE_PATH} -q --progress copy data-sql.tar swift:app-images
 	@rm -rf data-sql.tar
 
 backup: backup-images backup-settings backup-data backup-mysql
 
-restore-%:
-	@rclone copy -q --progress swift:app-images/$*.tar.gz .
+restore-%: check-rclone
+	@${RCLONE_PATH} copy -q --progress swift:app-images/$*.tar.gz .
 	@sudo tar xzvf $*.tar.gz  
 	@rm -rf ${DATA_DIR}/$*.tar.gz
 
-restore-mysql: down
-	@rclone copy -q --progress swift:app-images/data-sql.tar .
+restore-mysql: check-rclone down
+	@${RCLONE_PATH} copy -q --progress swift:app-images/data-sql.tar .
 	@if [ -d "$(DATA_DB_DIR)" ] ; then (echo purging ${DATA_DB_DIR} && sudo rm -rf ${DATA_DB_DIR} && echo purge done) ; fi
 	@\
 	if [ ! -f "data-sql.tar" ];then\
