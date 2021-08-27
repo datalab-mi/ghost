@@ -11,7 +11,7 @@ function test_app {
   timeout=120;
   test_result=1
   until [ "$timeout" -le 0 -o "$test_result" -eq "0" ] ; do
-      curl -s --fail --retry-max-time 120 --retry-delay 1  --retry 1  http://localhost:80
+      curl -s --fail --retry-max-time 120 --retry-delay 1  --retry 1  http://localhost:8080
       test_result=$?
       echo "Wait $timeout seconds: APP coming up ($test_result)";
       (( timeout-- ))
