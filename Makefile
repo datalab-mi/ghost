@@ -70,25 +70,21 @@ backup-%:
 	@rclone -q --progress copy $*.tar.gz swift:app-images
 	@rm -rf $*.tar.gz
 
-#	@docker-compose run --rm --name db db /usr/bin/mysql -h localhost -u root -p ${SQL_PASSWORD} ghost > ghost.sql
-#	@rclone -q --progress copy ghost.sql swift:app-images
-#docker exec ghost-mysql /usr/bin/mysqldump -u root --password=${SQL_PASSWORD} ghost > backup.sql
-
-backup-mysql: 
+backup-mysql: down
 	@echo taring ${DATA_DB_DIR} to data-sql.tar
 	cd $$(dirname ${DATA_DB_DIR}) && sudo tar --create --file=${CURRENT_PATH}/data-sql.tar --listed-incremental=${CURRENT_PATH}/data-sql.snar ${DATA_DB_DIR}
+	@rclone -q --progress copy data-sql.tar swift:app-images
+	@rm -rf data-sql.tar
 
-backup: backup-images backup-settings backup-data
+backup: backup-images backup-settings backup-data backup-mysql
 
 restore-%:
-	@rclone copy -q --progress swift:app-images/$*.tar.gz ${DATA_DIR}
-	@tar xzvf ${DATA_DIR}/$*.tar.gz  
+	@rclone copy -q --progress swift:app-images/$*.tar.gz .
+	@sudo tar xzvf $*.tar.gz  
 	@rm -rf ${DATA_DIR}/$*.tar.gz
 
-#@docker-compose run --rm --name db db /usr/bin/mysql -h localhost -u root --password=${SQL_PASSWORD} ghost < ghost.sql
-#@docker-compose exec -T db /usr/bin/mysql -h localhost -u root --password=${SQL_PASSWORD} < ghost.sql
-
 restore-mysql: down
+	@rclone copy -q --progress swift:app-images/data-sql.tar .
 	@if [ -d "$(DATA_DB_DIR)" ] ; then (echo purging ${DATA_DB_DIR} && sudo rm -rf ${DATA_DB_DIR} && echo purge done) ; fi
 	@\
 	if [ ! -f "data-sql.tar" ];then\
@@ -99,4 +95,4 @@ restore-mysql: down
 		echo backup restored;\
 	fi;
 
-restore: ${DATA_DIR} restore-images restore-mysql
+restore: ${DATA_DIR} restore-images restore-settings restore-data restore-mysql
