@@ -44,6 +44,3 @@ jobs:
           # default dockerhub login (use auth to pass quota limit)
           [ -n "$DOCKERHUB_TOKEN" -a -n "$DOCKERHUB_LOGIN" ] && echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_LOGIN --password-stdin
           ci/run-test.sh
-      - name: deploy on kubernetes k3d
-        run: |
-          ci/run-k3d-tests.sh
