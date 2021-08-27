@@ -1,6 +1,8 @@
 export CURRENT_PATH := $(shell pwd)
 export CUSTOM_THEME_PATH=${CURRENT_PATH}/custom-theme
 
+export MYSQL_VERSION ?= 5.7
+export GHOST_VERSION ?= 4.8
 export PORT ?= 8080
 export SQL_PASSWORD ?= example
 export URL ?= http://localhost:8080

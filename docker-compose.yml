@@ -3,7 +3,7 @@ version: '3.1'
 services:
 
   ghost:
-    image: ghost:latest
+    image: ghost:${GHOST_VERSION:-latest}
     container_name: ghost
     restart: always
     volumes:
@@ -29,7 +29,7 @@ services:
       mail__options__auth__pass: ${SMTP_MAIL_PASS}
       url: ${URL}
   db:
-    image: mysql:5.7
+    image: mysql:${MYSQL_VERSION:-5.7}
     container_name: ghost-mysql
     restart: always
     environment:
