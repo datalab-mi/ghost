@@ -37,5 +37,18 @@ make up
 # Simple test app
 test_app
 
+# Test backup (to local dir)
+make install-rclone
+make backup RCLONE_BACKEND_STORE="./backup/app-images"
+
+test_result=1
+[[ $(find backup -type f | wc -l) -eq 4 ]] && test_result=$?
+
+if [ "$test_result" -gt "0" ] ; then
+       ret=$test_result
+       echo "ERROR: Backup failed"
+       return $ret
+fi
+
 # Down all
 make down
