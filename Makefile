@@ -101,11 +101,13 @@ backup-mysql-main:
 backup: backup-images backup-settings backup-data backup-mysql
 
 restore-%: check-rclone
+	@echo "# $@"
 	@${RCLONE_PATH} copy -q --progress ${RCLONE_BACKEND_STORE}/$*.tar.gz .
 	@sudo tar xzvf $*.tar.gz
-	@rm -rf ${DATA_DIR}/$*.tar.gz
+	@rm -rf $*.tar.gz
 
 restore-mysql: check-rclone down
+	@echo "# $@"
 	@${RCLONE_PATH} copy -q --progress ${RCLONE_BACKEND_STORE}/data-sql.tar .
 	@if [ -d "$(DATA_DB_DIR)" ] ; then (echo purging ${DATA_DB_DIR} && sudo rm -rf ${DATA_DB_DIR} && echo purge done) ; fi
 	@\
@@ -115,6 +117,7 @@ restore-mysql: check-rclone down
 		echo restoring from data-sql.tar to ${DATA_DB_DIR} && \
 		sudo tar xf data-sql.tar -C $$(dirname ${DATA_DB_DIR}) && \
 		echo backup restored;\
-	fi;
+	        rm -rf data-sql.tar;\
+	fi
 
 restore: ${DATA_DIR} restore-images restore-settings restore-data restore-mysql
