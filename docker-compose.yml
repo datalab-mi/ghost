@@ -24,9 +24,9 @@ services:
       mail__options__service: SMTP
       mail__options__host: ${SMTP_MAIL_HOST}
       mail__options__port: ${SMTP_MAIL_PORT}
-      mail__options__secureConnection: 'false'
-      mail__options__auth__user: ${SMTP_MAIL_USER}
-      mail__options__auth__pass: ${SMTP_MAIL_PASS}
+      #mail__options__secureConnection: 'true'
+      #mail__options__auth__user: ${SMTP_MAIL_USER}
+      #mail__options__auth__pass: ${SMTP_MAIL_PASS}
       url: ${URL}
   db:
     image: mysql:${MYSQL_VERSION:-5.7}
