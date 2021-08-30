@@ -15,8 +15,8 @@ export SMTP_MAIL_PASS ?= 1234
 export SMTP_MAIL_HOST ?= smtp.mail.com
 export SMTP_MAIL_PORT ?= 25
 
-export DATA_DIR ?= data
-export DATA_DB_DIR ?= data_sql
+export DATA_DIR ?= ./data
+export DATA_DB_DIR ?= ./data_sql
 
 # if defined, use curl instead of git
 export USE_CURL :=
@@ -84,7 +84,7 @@ check-rclone:
 
 backup-%: check-rclone
 	@echo "# $@"
-	@tar -zcvf $*.tar.gz data/$*/
+	@tar -zcvf $*.tar.gz ${DATA_DIR}/$*/
 	@${RCLONE_PATH} -q --progress copy $*.tar.gz ${RCLONE_BACKEND_STORE}
 	@rm -rf $*.tar.gz
 
