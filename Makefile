@@ -103,7 +103,7 @@ backup: backup-images backup-settings backup-data backup-mysql
 restore-%: check-rclone
 	@echo "# $@"
 	@${RCLONE_PATH} copy -q --progress ${RCLONE_BACKEND_STORE}/$*.tar.gz .
-	@sudo tar xzvf $*.tar.gz
+	@sudo tar xzvf $*.tar.gz -C $$(dirname ${DATA_DIR})
 	@rm -rf $*.tar.gz
 
 restore-mysql: check-rclone down
