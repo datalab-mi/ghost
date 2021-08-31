@@ -1,7 +1,7 @@
 # Ghost docker-compose stack
 
 Defition:
-* ghost
+* ghost with slack, mailgun, smtp features
 * mysql
 * (backup/restore script) to Openstack Swift
 
