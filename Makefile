@@ -26,6 +26,9 @@ export RCLONE_PATH := $(shell which rclone)
 # rclone swift backend storage
 export RCLONE_BACKEND_STORE = ":swift,env_auth:"/app-images
 
+# enable backup cron (true or false)
+export ENABLE_BACKUP_CRON = false
+
 dummy		    := $(shell touch artifacts)
 include ./artifacts
 
@@ -121,3 +124,8 @@ restore-mysql: check-rclone down
 	fi
 
 restore: ${DATA_DIR} restore-images restore-settings restore-data restore-mysql
+
+enable-backup-cron:
+	@if [ "${ENABLE_BACKUP_CRON}" == "true" ] ; then \
+          echo crontab scripts/crontab.cfg ; else \
+          echo "ENABLE_BACKUP_CRON disabled" ; fi
