@@ -27,6 +27,10 @@ services:
       #mail__options__secureConnection: 'true'
       #mail__options__auth__user: ${SMTP_MAIL_USER}
       #mail__options__auth__pass: ${SMTP_MAIL_PASS}
+      privacy__useUpdateCheck: ${GHOST_PRIVACY_USE_UPDATECHECK:-true}
+      privacy__useGravatar: ${GHOST_PRIVACY_USE_GRAVATAR:-true}
+      privacy__useRpcPing: ${GHOST_PRIVACY_USE_RPCPING:-true}
+      privacy__useStructuredData: ${GHOST_PRIVACY_USE_STRUCTUREDDATA:-true}
       url: ${URL}
   db:
     image: mysql:${MYSQL_VERSION:-5.7}

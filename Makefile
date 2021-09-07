@@ -14,6 +14,10 @@ export SMTP_MAIL_USER ?= user@example.com
 export SMTP_MAIL_PASS ?= 1234
 export SMTP_MAIL_HOST ?= smtp.mail.com
 export SMTP_MAIL_PORT ?= 25
+export GHOST_PRIVACY_USE_UPDATECHECK ?= 'true'
+export GHOST_PRIVACY_USE_GRAVATAR ?= 'true'
+export GHOST_PRIVACY_USE_RPCPING ?= 'true'
+export GHOST_PRIVACY_USE_STRUCTUREDDATA ?= 'true'
 
 export DATA_DIR ?= ./data
 export DATA_DB_DIR ?= ./data_sql
