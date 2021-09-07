@@ -31,6 +31,7 @@ eval curl -kL -s $curl_args ${APP_URL} | \
 ( cd ${APP_NAME}
   if [ -n "$DOCKERHUB_TOKEN" -a -n "$DOCKERHUB_LOGIN" ] ;then  echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_LOGIN --password-stdin ; fi
 
+  make install-rclone
   make up$app_role
 
   if [ -n "$DOCKERHUB_TOKEN" -a -n "$DOCKERHUB_LOGIN" ] ; then docker logout ; fi

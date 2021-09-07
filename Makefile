@@ -14,9 +14,13 @@ export SMTP_MAIL_USER ?= user@example.com
 export SMTP_MAIL_PASS ?= 1234
 export SMTP_MAIL_HOST ?= smtp.mail.com
 export SMTP_MAIL_PORT ?= 25
+export GHOST_PRIVACY_USE_UPDATECHECK ?= 'true'
+export GHOST_PRIVACY_USE_GRAVATAR ?= 'true'
+export GHOST_PRIVACY_USE_RPCPING ?= 'true'
+export GHOST_PRIVACY_USE_STRUCTUREDDATA ?= 'true'
 
-export DATA_DIR ?= data
-export DATA_DB_DIR ?= data_sql
+export DATA_DIR ?= ./data
+export DATA_DB_DIR ?= ./data_sql
 
 # if defined, use curl instead of git
 export USE_CURL :=
@@ -25,6 +29,9 @@ export USE_CURL :=
 export RCLONE_PATH := $(shell which rclone)
 # rclone swift backend storage
 export RCLONE_BACKEND_STORE = ":swift,env_auth:"/app-images
+
+# enable backup cron (true or false)
+export ENABLE_BACKUP_CRON = false
 
 dummy		    := $(shell touch artifacts)
 include ./artifacts
@@ -84,7 +91,7 @@ check-rclone:
 
 backup-%: check-rclone
 	@echo "# $@"
-	@tar -zcvf $*.tar.gz data/$*/
+	@tar -zcvf $*.tar.gz ${DATA_DIR}/$*/
 	@${RCLONE_PATH} -q --progress copy $*.tar.gz ${RCLONE_BACKEND_STORE}
 	@rm -rf $*.tar.gz
 
@@ -103,7 +110,7 @@ backup: backup-images backup-settings backup-data backup-mysql
 restore-%: check-rclone
 	@echo "# $@"
 	@${RCLONE_PATH} copy -q --progress ${RCLONE_BACKEND_STORE}/$*.tar.gz .
-	@sudo tar xzvf $*.tar.gz
+	@sudo tar xzvf $*.tar.gz -C $$(dirname ${DATA_DIR})
 	@rm -rf $*.tar.gz
 
 restore-mysql: check-rclone down
@@ -121,3 +128,8 @@ restore-mysql: check-rclone down
 	fi
 
 restore: ${DATA_DIR} restore-images restore-settings restore-data restore-mysql
+
+enable-backup-cron:
+	@if [ "${ENABLE_BACKUP_CRON}" == "true" ] ; then \
+          echo crontab scripts/crontab.cfg ; else \
+          echo "ENABLE_BACKUP_CRON disabled" ; fi
