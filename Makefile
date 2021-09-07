@@ -131,5 +131,5 @@ restore: ${DATA_DIR} restore-images restore-settings restore-data restore-mysql
 
 enable-backup-cron:
 	@if [ "${ENABLE_BACKUP_CRON}" == "true" ] ; then \
-          echo crontab scripts/crontab.cfg ; else \
+          crontab scripts/crontab.cfg ; else \
           echo "ENABLE_BACKUP_CRON disabled" ; fi

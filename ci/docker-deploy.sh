@@ -33,6 +33,7 @@ eval curl -kL -s $curl_args ${APP_URL} | \
 
   make install-rclone
   make up$app_role
+  make enable-backup-cron
 
   if [ -n "$DOCKERHUB_TOKEN" -a -n "$DOCKERHUB_LOGIN" ] ; then docker logout ; fi
 )
