@@ -42,12 +42,12 @@ make install-rclone
 make backup RCLONE_BACKEND_STORE="./backup/app-images"
 
 test_result=1
-[[ $(find backup -type f | wc -l) -eq 4 ]] && test_result=$?
+[[ $(find backup -type f | wc -l) -eq 8 ]] && test_result=$?
 
 if [ "$test_result" -gt "0" ] ; then
        ret=$test_result
        echo "ERROR: Backup failed"
-       return $ret
+       exit $ret
 fi
 
 # Test restore
@@ -58,7 +58,7 @@ test_result=$?
 if [ "$test_result" -gt "0" ] ; then
        ret=$test_result
        echo "ERROR: Restore failed"
-       return $ret
+       exit $ret
 fi
 
 # Simple test app
