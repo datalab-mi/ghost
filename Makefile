@@ -29,6 +29,8 @@ export USE_CURL :=
 export RCLONE_PATH := $(shell which rclone)
 # rclone swift backend storage
 export RCLONE_BACKEND_STORE = ":swift,env_auth:"/app-images
+# day of the week
+export BACKUP_DAY=$(shell date +%u)
 
 # enable backup cron (true or false)
 export ENABLE_BACKUP_CRON = false
@@ -93,6 +95,7 @@ backup-%: check-rclone
 	@echo "# $@"
 	@tar -zcvf $*.tar.gz ${DATA_DIR}/$*/
 	@${RCLONE_PATH} -q --progress copy $*.tar.gz ${RCLONE_BACKEND_STORE}
+	@${RCLONE_PATH} -q --progress copy $*.tar.gz ${RCLONE_BACKEND_STORE}/${BACKUP_DAY}/
 	@rm -rf $*.tar.gz
 
 
@@ -103,6 +106,7 @@ backup-mysql-main:
 	@echo "# taring ${DATA_DB_DIR} to data-sql.tar"
 	cd $$(dirname ${DATA_DB_DIR}) && sudo tar --create --file=${CURRENT_PATH}/data-sql.tar --listed-incremental=${CURRENT_PATH}/data-sql.snar ${DATA_DB_DIR}
 	@${RCLONE_PATH} -q --progress copy data-sql.tar ${RCLONE_BACKEND_STORE}
+	@${RCLONE_PATH} -q --progress copy data-sql.tar ${RCLONE_BACKEND_STORE}/${BACKUP_DAY}/
 	@rm -rf data-sql.tar
 
 backup: backup-images backup-settings backup-data backup-mysql
