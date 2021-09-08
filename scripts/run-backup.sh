@@ -17,3 +17,5 @@ export https_proxy=$internal_http_proxy
 
 # Run backup
 make -C /home/$LOGNAME/ghost backup
+# Send json stat to log
+make -s -C /home/$LOGNAME/ghost backup-stats | jq -c '.|{backup: map( {(.Path): {modtime: .ModTime, size: .Size, mimetype: .MimeType}} ) | add}' | logger

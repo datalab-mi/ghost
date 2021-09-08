@@ -40,6 +40,7 @@ test_app
 # Test backup (to local dir)
 make install-rclone
 make backup RCLONE_BACKEND_STORE="./backup/app-images"
+make backup-stats RCLONE_BACKEND_STORE="./backup/app-images"
 
 test_result=1
 [[ $(find backup -type f | wc -l) -eq 8 ]] && test_result=$?

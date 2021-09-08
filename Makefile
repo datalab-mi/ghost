@@ -100,7 +100,7 @@ backup-%: check-rclone
 
 
 backup-mysql: check-rclone down backup-mysql-main up
-.PHONY: backup-mysql
+.PHONY: backup-mysql backup-stats
 
 backup-mysql-main:
 	@echo "# taring ${DATA_DB_DIR} to data-sql.tar"
@@ -108,6 +108,9 @@ backup-mysql-main:
 	@${RCLONE_PATH} -q --progress copy data-sql.tar ${RCLONE_BACKEND_STORE}
 	@${RCLONE_PATH} -q --progress copy data-sql.tar ${RCLONE_BACKEND_STORE}/${BACKUP_DAY}/
 	@rm -rf data-sql.tar
+
+backup-stats:
+	@${RCLONE_PATH} -q lsjson ${RCLONE_BACKEND_STORE} --files-only
 
 backup: backup-images backup-settings backup-data backup-mysql
 
