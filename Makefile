@@ -33,7 +33,7 @@ export RCLONE_BACKEND_STORE = ":swift,env_auth:"/app-images
 export BACKUP_DAY=$(shell date +%u)
 
 # enable backup cron (true or false)
-export ENABLE_BACKUP_CRON = false
+export ENABLE_BACKUP_CRON ?= false
 
 dummy		    := $(shell touch artifacts)
 include ./artifacts
